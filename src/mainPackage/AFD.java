@@ -15,24 +15,25 @@ import org.jdom2.input.SAXBuilder;
 
 public class AFD {
 	
-	private ArrayList<Integer> estad;	//Estados
+	private ArrayList<Integer> estado;	//Estados
 	private ArrayList<Character> alfa;	//Afabeto
 	private ArrayList<Transicao> trans;	//Transicoes
-	private int Inicial;	//Estado Inicial
-	private ArrayList<Integer> EstadoFinal;	//Estados Finais
+	private int estadoInicial;	//Estado Inicial
+	private ArrayList<Integer> estadoFinal;	//Estados Finais
 	
 	public AFD() {
-		this.estad = new ArrayList<>();
+		this.estado = new ArrayList<>();
 		this.alfa = new ArrayList<>();
 		this.trans = new ArrayList<>();
-		this.Inicial = -1;
-		this.EstadoFinal = new ArrayList<>();
+		this.estadoInicial = -1;
+		this.estadoFinal = new ArrayList<>();
 	}
 
 	public void Load(String nomeArq) throws JDOMException, IOException {
 		File f = new File(nomeArq);
-        if (!f.exists())
-        	System.out.println("FAIL!");
+        if (!f.exists()){
+        	System.out.println("Arquivo "+nomeArq+" não existe!");
+        }
         
 		SAXBuilder builder = new SAXBuilder();
 		     
@@ -41,25 +42,46 @@ public class AFD {
 		// Pega Automaton
 		Element root = (Element) doc.getRootElement();
 		
-		System.out.println("...: "+root.getChildTextNormalize("type"));
-		// Pega Lista de States
-		List states = root.getChildren("automaton");
-		             
+		//Automato nao eh AFD
+		if(!root.getChildTextNormalize("type").equals("fa")) {
+			System.out.println("Automato não é do tipo FA");
+			System.exit(0);
+		}
 		
-		Iterator i = states.iterator();
+		// Pega Lista de States
+		List states = root.getChild("automaton").getChildren("state");
+		//Pega Lista de Transition
+		List trst   = root.getChild("automaton").getChildren("transition");
 		             
+		Iterator i = states.iterator();
 		while( i.hasNext() ){
-		        Element state = (Element) i.next();
-		        System.out.println("Estado 1: " + state.getChildText("type"));
-		        System.out.println("Estado 1: " + state.getChildTextNormalize("name"));
-		        System.out.println("ID: " + state.getChildText("id"));
-		        System.out.println("ID: " + state.getChildTextNormalize("id"));
-		        System.out.println("ID: " + state.getChildText("from"));
-		        System.out.println("ID: " + state.getChildText("to"));
-		        System.out.println("X: " + state.getChildText("x"));
-		        System.out.println("Y: " + state.getChildTextNormalize("y"));
-		        System.out.println("Y: " + state.getAttributeValue("transition"));
-		        System.out.println();
+			
+	        Element state = (Element) i.next();
+	        this.estado.add(Integer.parseInt(state.getAttributeValue("id")));
+	        System.out.println("State id: " + state.getAttributeValue("id"));
+	        System.out.println("State x: " + state.getChildText("x"));
+	        System.out.println("State y: " + state.getChildText("y"));
+	        System.out.println();
+		}
+		
+		String s;
+		Transicao t = new Transicao();
+		Iterator j = trst.iterator();
+		while( j.hasNext() ){
+			
+	        Element trs = (Element) j.next();
+	        t.setFrom(Integer.parseInt(trs.getChildText("from")));
+	        t.setTo(Integer.parseInt(trs.getChildText("to")));
+	        //String to Char
+	        s = (trs.getChildText("read"));
+	        t.setValue(s.charAt(0));
+
+	        System.out.println("To: " + trs.getChildText("to"));
+	        System.out.println("From: " + trs.getChildText("from"));
+	        System.out.println("Read: " + trs.getChildText("read"));
+	        System.out.println();
+
+	        trans.add(t);
 		}
 	}
 	
@@ -69,10 +91,10 @@ public class AFD {
 	
 	//Estados
 	public ArrayList<Integer> getEstad() {
-		return estad;
+		return estado;
 	}
-	public void setEstad(ArrayList<Integer> estad) {
-		this.estad = estad;
+	public void setEstad(ArrayList<Integer> estado) {
+		this.estado = estado;
 	}
 
 	//Alfabeto
@@ -92,19 +114,19 @@ public class AFD {
 	}
 
 	//Estado Inicial
-	public int getInicial() {
-		return Inicial;
+	public int getEstadoInicial() {
+		return estadoInicial;
 	}
-	public void setInicial(int inicial) {
-		Inicial = inicial;
+	public void setEstadoInicial(int estadoInicial) {
+		this.estadoInicial = estadoInicial;
 	}
 
 	//Estado Final
 	public ArrayList<Integer> getEstadoFinal() {
-		return EstadoFinal;
+		return estadoFinal;
 	}
 	public void setEstadoFinal(ArrayList<Integer> estadoFinal) {
-		EstadoFinal = estadoFinal;
+		this.estadoFinal = estadoFinal;
 	}
 	
 }
