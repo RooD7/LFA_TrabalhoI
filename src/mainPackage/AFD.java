@@ -171,6 +171,26 @@ public class AFD {
 		OutputStream out = new FileOutputStream( new File(nomeArq));
 		xout.output(doc , out);
 	}
+
+	public void addState(int id, boolean init, boolean fim) {
+		this.estado.add(id);
+		if(init)
+			this.estadoInicial = id;
+		if(fim)
+			this.estadoFinal.add(id);
+	}
+	
+	public void addTransition(int from, int to, char c) {
+		Transicao t = new Transicao();
+		t.setFrom(from);
+		t.setTo(to);
+		t.setValue(c);
+		this.trans.add(t);
+	}
+	
+	public void deleteState(int n) {
+		
+	}
 	
 	//Estados
 	public ArrayList<Integer> getEstad() {
