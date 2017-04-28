@@ -66,6 +66,15 @@ public class AFD {
 	        System.out.println("State x: " + state.getChildText("x"));
 	        System.out.println("State y: " + state.getChildText("y"));
 	        System.out.println();
+	        
+	        if(state.getChild("initial") != null) {
+	        	this.setEstadoInicial(Integer.parseInt(state.getAttributeValue("id")));
+	        	System.out.println("Inicial: "+ state.getAttributeValue("id"));
+	        }
+	        if(state.getChild("final") != null) {
+	        	this.estadoFinal.add(Integer.parseInt(state.getAttributeValue("id")));
+	        	System.out.println("Final: "+ state.getAttributeValue("id"));
+	        }
 		}
 		
 		String s;
@@ -117,6 +126,15 @@ public class AFD {
 			y.setText(Double.toString(yl));
 			state.addContent(x);
 			state.addContent(y);
+			
+			if(this.getEstadoInicial() == e) {
+				Element init = new Element("initial");
+				state.addContent(init);
+	        }
+	        if(this.estadoFinal.contains(e)) {
+	        	Element fini = new Element("final");
+				state.addContent(fini);
+	        }
 
 			auto.addContent(state);
 			xl += 75;
