@@ -2,8 +2,8 @@ package mainPackage;
 
 public class Transicao {
 
-	private int from;
-	private int to;
+	private Integer from;
+	private Integer to;
 	private char value;
 
 	public Transicao() {
@@ -13,7 +13,7 @@ public class Transicao {
 	}
 	
 	//From
-	public int getFrom() {
+	public Integer getFrom() {
 		return this.from;
 	}
 	public void setFrom(int from) {
@@ -21,7 +21,7 @@ public class Transicao {
 	}
 	
 	//To
-	public int getTo() {
+	public Integer getTo() {
 		return this.to;
 	}
 	public void setTo(int to) {
