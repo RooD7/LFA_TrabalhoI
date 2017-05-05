@@ -24,42 +24,32 @@
 		<transition>
 			<from>0</from>
 			<to>1</to>
-			<read>a</read>
+			<read>b</read>
 		</transition>
 		<transition>
 			<from>0</from>
 			<to>0</to>
-			<read>b</read>
-		</transition>
-		<transition>
-			<from>1</from>
-			<to>2</to>
 			<read>a</read>
 		</transition>
 		<transition>
 			<from>1</from>
-			<to>0</to>
-			<read>b</read>
-		</transition>
-		<transition>
-			<from>1</from>
 			<to>2</to>
-			<read>a</read>
+			<read>b</read>
 		</transition>
 		<transition>
 			<from>1</from>
 			<to>0</to>
-			<read>b</read>
+			<read>a</read>
 		</transition>
 		<transition>
 			<from>2</from>
 			<to>3</to>
-			<read>a</read>
+			<read>b</read>
 		</transition>
 		<transition>
 			<from>2</from>
 			<to>0</to>
-			<read>b</read>
+			<read>a</read>
 		</transition>
 		<transition>
 			<from>3</from>

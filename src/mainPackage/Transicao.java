@@ -35,4 +35,5 @@ public class Transicao {
 	public void setValue(char value) {
 		this.value = value;
 	}
+
 }

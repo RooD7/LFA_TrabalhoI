@@ -35,9 +35,11 @@ public class AFD {
 
 	//Carrega arquivo de entrada
 	public void Load(String nomeArq) throws JDOMException, IOException {
+		
 		File f = new File(nomeArq);
         if (!f.exists()){
         	System.out.println("Arquivo "+nomeArq+" não existe!");
+        	System.exit(0);
         }
         
 		SAXBuilder builder = new SAXBuilder();
@@ -61,24 +63,30 @@ public class AFD {
 		while( i.hasNext() ){
 			
 	        Element state = (Element) i.next();
-	        this.estado.add(Integer.parseInt(state.getAttributeValue("id")));
+	        // Adiciona estado na lista de estados
+	        this.getEstado().add(Integer.parseInt(state.getAttributeValue("id")));
+	        
+	        // Adiciona simbolo na lista do alfabeto
+	        if(this.getAlfa().contains(state.getAttributeValue("id")))
+	        	this.getAlfa().add(state.getAttributeValue("id").charAt(0));
+	        
+	        /*
 	        System.out.println("State id: " + state.getAttributeValue("id"));
 	        System.out.println("State x: " + state.getChildText("x"));
 	        System.out.println("State y: " + state.getChildText("y"));
 	        System.out.println();
+	        */
 	        
 	        if(state.getChild("initial") != null) {
 	        	this.setEstadoInicial(Integer.parseInt(state.getAttributeValue("id")));
-	        	System.out.println("Inicial: "+ state.getAttributeValue("id"));
 	        }
 	        if(state.getChild("final") != null) {
-	        	this.estadoFinal.add(Integer.parseInt(state.getAttributeValue("id")));
-	        	System.out.println("Final: "+ state.getAttributeValue("id"));
+	        	this.getEstadoFinal().add(Integer.parseInt(state.getAttributeValue("id")));	        
 	        }
 		}
 		
 		String s;
-		Iterator j = trst.iterator();
+		Iterator<?> j = trst.iterator();
 		while( j.hasNext() ){
 			
 			Transicao t = new Transicao();
@@ -89,7 +97,7 @@ public class AFD {
 	        s = trs.getChildText("read");
 	        t.setValue(s.charAt(0));
 
-	        this.trans.add(t);
+	        this.getTrans().add(t);
 	        
 	        /*System.out.println("From: " + t.getFrom());
 	        System.out.println("To: " + t.getTo());
@@ -142,7 +150,7 @@ public class AFD {
 		}
 
 		//for(Transicao t : trans) {
-		Iterator k = trans.iterator();
+		Iterator<Transicao> k = trans.iterator();
 		while( k.hasNext() ) {
 			Transicao t = (Transicao) k.next();
 			Element trs = new Element("transition");
@@ -172,31 +180,264 @@ public class AFD {
 		xout.output(doc , out);
 	}
 
+	// Adicionar estado
 	public void addState(int id, boolean init, boolean fim) {
-		this.estado.add(id);
+		this.getEstado().add(id);
 		if(init)
-			this.estadoInicial = id;
+			this.setEstadoInicial(id);
 		if(fim)
-			this.estadoFinal.add(id);
+			this.getEstadoFinal().add(id);
 	}
 	
+	// Adicionar transicao
 	public void addTransition(int from, int to, char c) {
 		Transicao t = new Transicao();
 		t.setFrom(from);
 		t.setTo(to);
 		t.setValue(c);
-		this.trans.add(t);
+		this.getTrans().add(t);
 	}
 	
-	public void deleteState(int n) {
+	// Deletar estado
+	public void deleteState(Integer n) {
 		
+		if(this.getEstado().contains(n)) {
+			
+			this.getEstado().remove(n);
+			
+			Transicao tAux = new Transicao();
+			Iterator<Transicao> t = getTrans().iterator();
+			while(t.hasNext()) {
+				tAux = (Transicao) t.next();
+				if((tAux.getFrom().equals(n)) || (tAux.getTo().equals(n))) {
+					t.remove();
+				}
+			}
+		}
+		else
+			System.out.println("Estado Inválido!");
 	}
 	
+	// Deletar Transicao
+	public void deleteTransition(int from, int to, char c) {
+		
+		Transicao tAux = new Transicao();
+		Iterator<Transicao> t = getTrans().iterator();
+		while(t.hasNext()) {
+			tAux = (Transicao) t.next();
+			if((tAux.getFrom().equals(from)) && (tAux.getTo().equals(to) && (tAux.getValue() == c))) {
+				t.remove();
+			}
+		}
+	}
+	
+	// equivalencia de automatos -- FALTA
+	public static boolean equivalents(AFD m1, AFD m2) {
+		
+		return true;
+	}
+	
+	// Complemento de um automato
+	public AFD complement() {
+		AFD aux = new AFD();
+		
+		aux.setAlfa(this.getAlfa());
+		aux.setEstado(this.getEstado());
+		aux.setEstadoInicial(this.getEstadoInicial());
+		aux.setTrans(this.getTrans());
+		
+		for (Integer i : getEstado()) {
+			if(!this.getEstadoFinal().contains(i.intValue())) {
+				aux.estadoFinal.add(i.intValue());
+			}
+		}
+		return aux;
+	}
+	
+	// Uniao de Automatos	-- FALTA
+	public AFD union(AFD m) {
+		/*
+		 * _ Criar estados do tamanho m1 x m2
+		 * _ Salvar num vetor de Transicoes todas as transicoes possiveis
+		 * 	 analisando m1 e m2 paralelamente. 
+		 * */
+		
+		
+		//if(tamM1 > tamM2)
+		AFD aux = new AFD();
+		return (aux);
+	}
+	
+	// Produto de Automatos -- FALTA
+	public AFD produtoAFD(AFD m1, AFD m2) {
+		
+		
+		AFD auxM = new AFD();
+		int tamM1 = m1.getEstado().size();
+		int tamM2 = m2.getEstado().size();
+		int[][] mapa = new int[tamM1][tamM2];
+		
+		int k = 0;
+		for (int i = 0; i < tamM1; i++) {
+			for (int j = 0; j < tamM2; j++) {
+				auxM.addState(k, false, false);
+				mapa[i][j] = k;
+				k++;
+			}
+		}
+		
+		int stateTo;
+		Integer toM2, fromM1, toM1, fromM2;
+		char simM1, simM2;
+
+		ArrayList<Transicao> t1 = new ArrayList<>();
+		for (Integer e1 : m1.getEstado()) {
+			for (Integer e2 : m2.getEstado()) {
+				// Lista de transicao com o FROM igual a state e1
+				
+				t1 = listaFromState(m1, t1, e1);
+				System.out.println("OK!");
+				
+				for (Transicao t : t1) {
+					toM1 = t.getTo();
+					simM1 = t.getValue();
+					toM2 = getToTrans(m2, e2, simM1);
+					
+					if(toM2 != null) {
+						auxM.addTransition(mapa[e1][e2], mapa[toM1][toM2], simM1); 
+					}
+				}
+				
+			}
+		}
+		
+				/*estadoI quero saber sua lista de transição o primeiro valor que sai dele e qual o valor
+				armazeno o TO do automato 1
+				armazeno letra do automato 1
+				mando em uma função pro dois o J estado do automato 2 e valor que pegamos na transicao m1
+				acho e armazeno o to do 2
+				jogo a combinacao de to1,to2 matriz
+				preencho novo automato*/
+		
+		return auxM;
+	}
+	
+	public ArrayList<Transicao> listaFromState(AFD m, ArrayList<Transicao> t, int state) {
+		
+		Transicao tAux = new Transicao();
+		Iterator<Transicao> t1 = m.getTrans().iterator();
+		while(t1.hasNext()) {
+			tAux = (Transicao) t1.next();
+			if(tAux.getFrom().equals((Integer)state)) {
+				t.add(tAux);
+			}
+		}
+		return t;
+	}
+	
+	public Integer getToTrans(AFD m1, Integer from, char value) {
+		
+		Transicao tAux = new Transicao();
+		Iterator<Transicao> t = m1.getTrans().iterator();
+		while(t.hasNext()) {
+			tAux = (Transicao) t.next();
+			if(tAux.getFrom().equals((Integer)from) && tAux.getValue() == value) {
+				return tAux.getTo();
+			}
+		}
+		return null;
+	}
+	
+	public int getStateTo( AFD m1, int atual, Iterator<Transicao> t) {
+		
+		Transicao tAux = new Transicao();
+		tAux = (Transicao) t.next();
+		if(tAux.getFrom().equals((Integer)atual)) {
+			System.out.println("Estado To: "+tAux.getTo());
+			return tAux.getTo();
+		}
+		
+		return -1;
+	}
+	
+	public char getSimbolo( AFD m1, int from, int to) {
+		
+		Transicao tAux = new Transicao();
+		Iterator<Transicao> t = m1.getTrans().iterator();
+		while(t.hasNext()) {
+			tAux = (Transicao) t.next();
+			if(tAux.getFrom().equals((Integer)from) && tAux.getTo().equals((Integer)to)) {
+				System.out.println("Estado Char: "+tAux.getValue());
+				return tAux.getValue();
+			}
+		}
+		return ' ';
+	}
+	
+	// Percorre 1 estado do Automato
+	public int percorreUmEstado(int atual, char c) {
+		
+		// Percorrer todas as transicoes
+		Transicao tAux = new Transicao();
+		Iterator<Transicao> t = getTrans().iterator();
+		while(t.hasNext()) {
+			tAux = (Transicao) t.next();
+			if((tAux.getFrom().equals(atual)) && (tAux.getValue() == c)) {
+				return tAux.getTo();
+			}
+		}
+		return -1;
+	}
+	
+	// Palavra percorre o Automato
+	public boolean accept(String palavra) {
+		
+		char c;
+		int estadoAtual = this.getEstadoInicial();
+		
+		for (int i=0; i< palavra.length(); i++) { 
+			c = palavra.charAt(i);
+			estadoAtual = percorreUmEstado(estadoAtual, c);
+			if(estadoAtual == -1)
+				return false;
+		}
+		if(this.getEstadoFinal().contains((Integer)estadoAtual))
+			return true;
+
+		return false;
+	}
+	
+	// Retorna o Estado Inicial
+	public int initial() {
+		return getEstadoInicial();
+	}
+	
+	// Retorna os Estados Finais
+	public ArrayList<Integer> finals() {
+		return getEstadoFinal();
+	}
+	
+	// Testa a pertenca de uma palavra na linguagem
+	public int move(int estado, String palavra) {
+		
+		char c;
+		int estadoAtual = estado;
+		
+		for (int i=0; i< palavra.length(); i++) { 
+			c = palavra.charAt(i);
+			estadoAtual = percorreUmEstado(estadoAtual, c);
+			if(estadoAtual == -1)
+				return -1;
+		}
+		return estadoAtual;
+	}
+		
+	// ---------------- GET's e SET's ------------------ //
 	//Estados
-	public ArrayList<Integer> getEstad() {
+	public ArrayList<Integer> getEstado() {
 		return estado;
 	}
-	public void setEstad(ArrayList<Integer> estado) {
+	public void setEstado(ArrayList<Integer> estado) {
 		this.estado = estado;
 	}
 
