@@ -12,6 +12,7 @@ public class Main {
 		AFD m1C = new AFD();
 		AFD m2 = new AFD();
 		AFD m3 = new AFD();
+		AFD mm = new AFD();
 
 		// load
 		m1.Load("entrada.jff");
@@ -69,12 +70,14 @@ public class Main {
 		System.out.println("Vai imprimir!");
 		m3 = m1.produtoAFD(m1, m2);
 		System.out.println("Imprimiu!");
+		
+		mm = m1.minimum();
 		// salve
 		m1.Salve("saidaM1.jff");
 		m1C.Salve("saidaM1C.jff");
 		m2.Salve("saidaM2.jff");
 		System.out.println("Vai imprimir!");
-		m3.Salve("saidaM3.jff");
+		m3.Salve("saidaM3C.jff");
 		System.out.println("Imprimiu!");
 		
 	}

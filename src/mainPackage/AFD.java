@@ -45,7 +45,7 @@ public class AFD {
 		SAXBuilder builder = new SAXBuilder();
 		Document doc = builder.build(f);
 		             
-		// Pega Automaton
+		// Pega Structure
 		Element root = (Element) doc.getRootElement();
 		
 		//Automato nao eh AFD
@@ -206,12 +206,20 @@ public class AFD {
 			this.getEstado().remove(n);
 			
 			Transicao tAux = new Transicao();
-			Iterator<Transicao> t = getTrans().iterator();
+			Iterator<Transicao> t = this.getTrans().iterator();
 			while(t.hasNext()) {
 				tAux = (Transicao) t.next();
 				if((tAux.getFrom().equals(n)) || (tAux.getTo().equals(n))) {
-					t.remove();
+					System.out.println("From: "+tAux.getFrom()+"\tTo: "+tAux.getTo()+"\tDeletar = "+this.getTrans().indexOf(tAux));
+					try {
+						t.remove();
+					} catch (Exception e){
+						System.out.println("Erro:: "+ e.toString());
+					}
+					//this.getTrans().remove(tAux);
+					//tAux = new Transicao();
 				}
+//				System.out.println("Pooraa");
 			}
 		}
 		else
@@ -237,6 +245,23 @@ public class AFD {
 		return true;
 	}
 	
+	// equivalencia de estados -- FALTA
+	public ArrayList<Integer> equivalents() {
+		ArrayList<Integer> eqv = new ArrayList<>();
+		return eqv;
+	}
+	
+	// Minimizacao -- FALTA
+	public AFD minimum() {
+		AFD mm = new AFD();
+		
+		System.out.println("Valor corres: "+ Minimizacao.valorCorrespondente(1, 1));
+		System.out.println("Valor corres: "+ Minimizacao.valorCorrespondente(2, 2));
+		System.out.println("Valor corres: "+ Minimizacao.valorCorrespondente(3, 3));
+		
+		return mm;
+	}
+		
 	// Complemento de um automato
 	public AFD complement() {
 		AFD aux = new AFD();
@@ -275,16 +300,23 @@ public class AFD {
 		AFD auxM = new AFD();
 		int tamM1 = m1.getEstado().size();
 		int tamM2 = m2.getEstado().size();
+		int iniM1 = m1.initial();
+		int iniM2 = m2.initial();
 		int[][] mapa = new int[tamM1][tamM2];
 		
 		int k = 0;
 		for (int i = 0; i < tamM1; i++) {
 			for (int j = 0; j < tamM2; j++) {
-				auxM.addState(k, false, false);
+				//estado inicial
+				if((i == iniM1) && (j == iniM2))
+					auxM.addState(k, true, false);
+				else
+					auxM.addState(k, false, false);
+				
 				mapa[i][j] = k;
 				k++;
 			}
-		}
+		}		
 		
 		int stateTo;
 		Integer toM2, fromM1, toM1, fromM2;
@@ -295,14 +327,16 @@ public class AFD {
 			for (Integer e2 : m2.getEstado()) {
 				// Lista de transicao com o FROM igual a state e1
 				
+				t1.clear();
 				t1 = listaFromState(m1, t1, e1);
-				System.out.println("OK!");
 				
+				// Percorre todas as transicoes
 				for (Transicao t : t1) {
 					toM1 = t.getTo();
 					simM1 = t.getValue();
 					toM2 = getToTrans(m2, e2, simM1);
 					
+					// existe TO de M2, add transicao
 					if(toM2 != null) {
 						auxM.addTransition(mapa[e1][e2], mapa[toM1][toM2], simM1); 
 					}
@@ -310,14 +344,7 @@ public class AFD {
 				
 			}
 		}
-		
-				/*estadoI quero saber sua lista de transição o primeiro valor que sai dele e qual o valor
-				armazeno o TO do automato 1
-				armazeno letra do automato 1
-				mando em uma função pro dois o J estado do automato 2 e valor que pegamos na transicao m1
-				acho e armazeno o to do 2
-				jogo a combinacao de to1,to2 matriz
-				preencho novo automato*/
+		auxM = RemoveEstadosVazioNulos(auxM);
 		
 		return auxM;
 	}
@@ -333,6 +360,39 @@ public class AFD {
 			}
 		}
 		return t;
+	}
+	
+	public AFD RemoveEstadosVazioNulos(AFD m) {
+		
+		boolean flagNulo = true;
+		ArrayList<Transicao> t = m.getTrans();
+		Transicao tAux = new Transicao();
+		Iterator<Transicao> t1;
+		
+		// Percorre todas os estados
+		for (Integer e1 = 0; e1 < m.getEstado().size(); e1++) {
+			// Nao eh o estado Inicial
+			if(!e1.equals((Integer)m.getEstadoInicial())) {
+				flagNulo = true;
+				// Procura as tansicoes TO e1
+				t1 = m.getTrans().iterator();
+				while(t1.hasNext()) {
+					tAux = (Transicao) t1.next();
+					// Estado nao eh nulo ou inacessivel
+					if(tAux.getTo().equals(e1)) {
+						flagNulo = false;
+						break;
+					}
+				}
+				// Remover estados nulos e inacessiveis
+				if(flagNulo) {
+					System.out.println("Estado deletado: "+e1);
+					m.deleteState(e1);
+				}
+			
+			}
+		}
+		return m;
 	}
 	
 	public Integer getToTrans(AFD m1, Integer from, char value) {
@@ -435,7 +495,7 @@ public class AFD {
 	// ---------------- GET's e SET's ------------------ //
 	//Estados
 	public ArrayList<Integer> getEstado() {
-		return estado;
+		return this.estado;
 	}
 	public void setEstado(ArrayList<Integer> estado) {
 		this.estado = estado;
