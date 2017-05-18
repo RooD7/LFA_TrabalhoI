@@ -229,6 +229,49 @@ public class AFD {
 	// equivalencia de estados -- FALTA
 	public ArrayList<Integer> equivalents() {
 		ArrayList<Integer> eqv = new ArrayList<>();
+		
+		int tamM = this.getEstado().size();
+		/*
+		int[][] mapa = new int[tamM][tamM];
+		
+		// inicializa a matriz
+		int k = 0;
+		for (int i = 0; i < tamM; i++) {
+			for (int j = 0; j < tamM; j++) {
+				mapa[i][j] = -1;
+			}
+		}
+		
+		for (int i = 0; i < tamM; i++) {
+			for (int j = 0; j < tamM; j++) {
+				// Parte inferior da matriz
+				if(i > j) {
+					System.out.println("("+i+","+j+")");
+				}
+			}
+		}
+		*/
+		ArrayList<Minimo> mini = new ArrayList<Minimo>(tamM);
+		Minimo mi = new Minimo();
+		Minimo mi2 = new Minimo();
+		
+		for (Integer e1 : this.getEstado()) {
+			// Cria novo minimo, com a lista de transicoes do estado e1
+			mi = new Minimo(this.listaFromState(this, e1.intValue()));
+			// Adiciona mi ao vetor de minimos
+			mini.add(mi);
+		}
+		
+		mi = null;
+		for (Integer e1 : this.getEstado()) {
+			// Array de transicoes do estado e1
+			mi = mini.get(e1);
+			for (Integer e2 : this.getEstado()) {
+				// Array de transicoes do estado e2
+				mi2 = mini.get(e2);
+				
+			}
+		}
 		return eqv;
 	}
 	
@@ -236,9 +279,9 @@ public class AFD {
 	public AFD minimum() {
 		AFD mm = new AFD();
 		
-		System.out.println("Valor corres: "+ Minimizacao.valorCorrespondente(1, 1));
-		System.out.println("Valor corres: "+ Minimizacao.valorCorrespondente(2, 2));
-		System.out.println("Valor corres: "+ Minimizacao.valorCorrespondente(3, 3));
+		System.out.println("Valor corres: "+ Minimo.valorCorrespondente(1, 1));
+		System.out.println("Valor corres: "+ Minimo.valorCorrespondente(2, 2));
+		System.out.println("Valor corres: "+ Minimo.valorCorrespondente(3, 3));
 		
 		return mm;
 	}
@@ -261,7 +304,7 @@ public class AFD {
 		return aux;
 	}
 	
-	// Uniao de Automatos	-- OK!
+	// Uniao de Automatos	--- OK!
 	public AFD union(AFD m) {		
 		AFD aux = new AFD();
 		// produto dos 2 automatos
@@ -287,7 +330,7 @@ public class AFD {
 		return aux;
 	}
 	
-	// Intersecao de Automatos	-- OK!
+	// Intersecao de Automatos	--- OK!
 	public AFD intersection(AFD m) {		
 		AFD aux = new AFD();
 		// produto dos 2 automatos
@@ -313,7 +356,7 @@ public class AFD {
 		return aux;
 	}
 	
-	// Diferenca de automatos
+	// Diferenca de automatos	--- OK!
 	public AFD difference(AFD m) {
 		// intersecao de m1 com o complemento de m2
 		return this.intersection(m.complement());
@@ -386,10 +429,23 @@ public class AFD {
 		return t;
 	}
 	
+	public ArrayList<Transicao> listaFromState(AFD m, int state) {
+		
+		ArrayList<Transicao> t = new ArrayList<Transicao>();
+		Transicao tAux = new Transicao();
+		Iterator<Transicao> t1 = m.getTrans().iterator();
+		while(t1.hasNext()) {
+			tAux = (Transicao) t1.next();
+			if(tAux.getFrom().equals((Integer)state)) {
+				t.add(tAux);
+			}
+		}
+		return t;
+	}
+	
 	public AFD RemoveEstadosVazioNulos(AFD m) {
 		
 		boolean flagNulo = true;
-		ArrayList<Transicao> t = m.getTrans();
 		Transicao tAux = new Transicao();
 		Iterator<Transicao> t1;
 		

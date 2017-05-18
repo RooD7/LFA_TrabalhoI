@@ -1,6 +1,7 @@
 package mainPackage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.jdom2.JDOMException;
 
@@ -16,6 +17,7 @@ public class Main {
 		AFD m5 = new AFD();
 		AFD m6 = new AFD();
 		AFD mm = new AFD();
+		ArrayList<Integer> eqv = new ArrayList<Integer>();
 
 		// load
 		m1.Load("entrada.jff");
@@ -81,22 +83,25 @@ public class Main {
 		//minimizacao
 		mm = m1.minimum();
 		
-		System.out.print(Minimizacao.valorCorrespondente(0, 0)+"\t");
-		System.out.print(Minimizacao.valorCorrespondente(0, 1)+"\t");
-		System.out.print(Minimizacao.valorCorrespondente(0, 2)+"\t");
-		System.out.println(Minimizacao.valorCorrespondente(0, 3));
-		System.out.print(Minimizacao.valorCorrespondente(1, 0)+"\t");
-		System.out.print(Minimizacao.valorCorrespondente(1, 1)+"\t");
-		System.out.print(Minimizacao.valorCorrespondente(1, 2)+"\t");
-		System.out.println(Minimizacao.valorCorrespondente(1, 3));
-		System.out.print(Minimizacao.valorCorrespondente(2, 0)+"\t");
-		System.out.print(Minimizacao.valorCorrespondente(2, 1)+"\t");
-		System.out.print(Minimizacao.valorCorrespondente(2, 2)+"\t");
-		System.out.println(Minimizacao.valorCorrespondente(2, 3));
-		System.out.print(Minimizacao.valorCorrespondente(3, 0)+"\t");
-		System.out.print(Minimizacao.valorCorrespondente(3, 1)+"\t");
-		System.out.print(Minimizacao.valorCorrespondente(3, 2)+"\t");
-		System.out.println(Minimizacao.valorCorrespondente(3, 3));
+		System.out.print(Minimo.valorCorrespondente(0, 0)+"\t");
+		System.out.print(Minimo.valorCorrespondente(0, 1)+"\t");
+		System.out.print(Minimo.valorCorrespondente(0, 2)+"\t");
+		System.out.println(Minimo.valorCorrespondente(0, 3));
+		System.out.print(Minimo.valorCorrespondente(1, 0)+"\t");
+		System.out.print(Minimo.valorCorrespondente(1, 1)+"\t");
+		System.out.print(Minimo.valorCorrespondente(1, 2)+"\t");
+		System.out.println(Minimo.valorCorrespondente(1, 3));
+		System.out.print(Minimo.valorCorrespondente(2, 0)+"\t");
+		System.out.print(Minimo.valorCorrespondente(2, 1)+"\t");
+		System.out.print(Minimo.valorCorrespondente(2, 2)+"\t");
+		System.out.println(Minimo.valorCorrespondente(2, 3));
+		System.out.print(Minimo.valorCorrespondente(3, 0)+"\t");
+		System.out.print(Minimo.valorCorrespondente(3, 1)+"\t");
+		System.out.print(Minimo.valorCorrespondente(3, 2)+"\t");
+		System.out.println(Minimo.valorCorrespondente(3, 3));
+		
+		
+		eqv = m1.equivalents();
 		
 		// salve
 		m1.Salve("saidaM1.jff");

@@ -2,11 +2,20 @@ package mainPackage;
 
 import java.util.ArrayList;
 
-public class Minimizacao {
+public class Minimo {
 
 	private boolean boolX;
 	private ArrayList<Transicao> pendencia = new ArrayList<>();
 	
+	public Minimo(ArrayList<Transicao> pend) {
+		this.boolX = false;
+		this.pendencia = pend;
+	}
+	
+	public Minimo() {
+		this.boolX = false;
+		this.pendencia = null;
+	}
 	
 	public static int valorCorrespondente(int linha, int coluna) {
 		linha -= 2;
