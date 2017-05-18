@@ -33,7 +33,7 @@ public class AFD {
 		this.estadoFinal = new ArrayList<>();
 	}
 
-	//Carrega arquivo de entrada
+	//Carrega arquivo de entrada	---	OK!
 	public void Load(String nomeArq) throws JDOMException, IOException {
 		
 		File f = new File(nomeArq);
@@ -55,11 +55,11 @@ public class AFD {
 		}
 		
 		// Pega Lista de States
-		List states = root.getChild("automaton").getChildren("state");
+		List<Element> states = root.getChild("automaton").getChildren("state");
 		//Pega Lista de Transition
-		List trst   = root.getChild("automaton").getChildren("transition");
+		List<Element> trst   = root.getChild("automaton").getChildren("transition");
 		             
-		Iterator i = states.iterator();
+		Iterator<Element> i = states.iterator();
 		while( i.hasNext() ){
 			
 	        Element state = (Element) i.next();
@@ -70,16 +70,11 @@ public class AFD {
 	        if(this.getAlfa().contains(state.getAttributeValue("id")))
 	        	this.getAlfa().add(state.getAttributeValue("id").charAt(0));
 	        
-	        /*
-	        System.out.println("State id: " + state.getAttributeValue("id"));
-	        System.out.println("State x: " + state.getChildText("x"));
-	        System.out.println("State y: " + state.getChildText("y"));
-	        System.out.println();
-	        */
-	        
+	        // Adiciona estado como estado inicial
 	        if(state.getChild("initial") != null) {
 	        	this.setEstadoInicial(Integer.parseInt(state.getAttributeValue("id")));
 	        }
+	        // Adiciona estado na lista de estados finais
 	        if(state.getChild("final") != null) {
 	        	this.getEstadoFinal().add(Integer.parseInt(state.getAttributeValue("id")));	        
 	        }
@@ -98,17 +93,10 @@ public class AFD {
 	        t.setValue(s.charAt(0));
 
 	        this.getTrans().add(t);
-	        
-	        /*System.out.println("From: " + t.getFrom());
-	        System.out.println("To: " + t.getTo());
-	        System.out.println("Read: " + t.getValue());
-	        System.out.println();
-	        System.out.println("OK!Trans--------");
-	        */
 		}
 	}
 	
-	// Carrega arquivo de saida
+	// Carrega arquivo de saida	---	OK!
 	public void Salve(String nomeArq) throws IOException {
 		Document doc = new Document();
         
@@ -121,7 +109,7 @@ public class AFD {
 		         
 		double xl = 175.0;
 		double yl = 150.0;
-		for(Integer e : estado) {
+		for(Integer e : this.getEstado()) {
 			Element state = new Element("state");
 			Attribute id = new Attribute("id",e.toString());
 			Attribute name = new Attribute("name","q"+e.toString());
@@ -139,7 +127,7 @@ public class AFD {
 				Element init = new Element("initial");
 				state.addContent(init);
 	        }
-	        if(this.estadoFinal.contains(e)) {
+	        if(this.getEstadoFinal().contains(e)) {
 	        	Element fini = new Element("final");
 				state.addContent(fini);
 	        }
@@ -150,19 +138,14 @@ public class AFD {
 		}
 
 		//for(Transicao t : trans) {
-		Iterator<Transicao> k = trans.iterator();
+		Iterator<Transicao> k = this.getTrans().iterator();
 		while( k.hasNext() ) {
 			Transicao t = (Transicao) k.next();
 			Element trs = new Element("transition");
 			Element from = new Element("from");
 			Element to = new Element("to");
 			Element read = new Element("read");
-			
-			/*System.out.println("From: " + t.getFrom());
-	        System.out.println("To: " + t.getTo());
-	        System.out.println("Read: " + t.getValue());
-	        System.out.println();
-	        System.out.println("OK!Trans--------");*/
+
 			from.setText(t.getFrom().toString());
 			to.setText(t.getTo().toString());
 			read.setText(Character.toString(t.getValue()));
@@ -180,7 +163,7 @@ public class AFD {
 		xout.output(doc , out);
 	}
 
-	// Adicionar estado
+	// Adicionar estado	---	OK!
 	public void addState(int id, boolean init, boolean fim) {
 		this.getEstado().add(id);
 		if(init)
@@ -189,7 +172,7 @@ public class AFD {
 			this.getEstadoFinal().add(id);
 	}
 	
-	// Adicionar transicao
+	// Adicionar transicao	---	OK!
 	public void addTransition(int from, int to, char c) {
 		Transicao t = new Transicao();
 		t.setFrom(from);
@@ -198,13 +181,14 @@ public class AFD {
 		this.getTrans().add(t);
 	}
 	
-	// Deletar estado
+	// Deletar estado	---	OK!
 	public void deleteState(Integer n) {
 		
 		if(this.getEstado().contains(n)) {
-			
+			// Remove estado n
 			this.getEstado().remove(n);
 			
+			// Remove transicoes do estado n
 			Transicao tAux = new Transicao();
 			Iterator<Transicao> t = this.getTrans().iterator();
 			while(t.hasNext()) {
@@ -216,17 +200,14 @@ public class AFD {
 					} catch (Exception e){
 						System.out.println("Erro:: "+ e.toString());
 					}
-					//this.getTrans().remove(tAux);
-					//tAux = new Transicao();
 				}
-//				System.out.println("Pooraa");
 			}
 		}
 		else
 			System.out.println("Estado Inválido!");
 	}
 	
-	// Deletar Transicao
+	// Deletar Transicao	---	OK!
 	public void deleteTransition(int from, int to, char c) {
 		
 		Transicao tAux = new Transicao();
@@ -262,7 +243,7 @@ public class AFD {
 		return mm;
 	}
 		
-	// Complemento de um automato
+	// Complemento de um automato	---	OK!
 	public AFD complement() {
 		AFD aux = new AFD();
 		
@@ -271,31 +252,75 @@ public class AFD {
 		aux.setEstadoInicial(this.getEstadoInicial());
 		aux.setTrans(this.getTrans());
 		
+		// Estados nao finais, se tornam finais
 		for (Integer i : getEstado()) {
 			if(!this.getEstadoFinal().contains(i.intValue())) {
-				aux.estadoFinal.add(i.intValue());
+				aux.getEstadoFinal().add(i.intValue());
 			}
 		}
 		return aux;
 	}
 	
-	// Uniao de Automatos	-- FALTA
-	public AFD union(AFD m) {
-		/*
-		 * _ Criar estados do tamanho m1 x m2
-		 * _ Salvar num vetor de Transicoes todas as transicoes possiveis
-		 * 	 analisando m1 e m2 paralelamente. 
-		 * */
-		
-		
-		//if(tamM1 > tamM2)
+	// Uniao de Automatos	-- OK!
+	public AFD union(AFD m) {		
 		AFD aux = new AFD();
-		return (aux);
+		// produto dos 2 automatos
+		aux = m.produtoAFD(this, m);
+		
+		ArrayList<Integer> f1 = new ArrayList<>();
+		ArrayList<Integer> f2 = new ArrayList<>();
+		
+		f1 = this.getEstadoFinal();
+		f2 = m.getEstadoFinal();
+		
+		int k = 0;
+		for (Integer e1 = 0; e1 < this.getEstado().size(); e1++) {
+			for (Integer e2 = 0; e2 < this.getEstado().size(); e2++) {
+				// posicoes [e1, e2] pertencem aos estados finais de f1 e f2
+				if((f1.contains(e1)) && (f2.contains(e2))) {
+					// adiciona o estado final ao automato aux na posicao k
+					aux.getEstadoFinal().add((Integer)k);
+				}
+				k++;
+			}
+		}
+		return aux;
 	}
 	
-	// Produto de Automatos -- FALTA
-	public AFD produtoAFD(AFD m1, AFD m2) {
+	// Intersecao de Automatos	-- OK!
+	public AFD intersection(AFD m) {		
+		AFD aux = new AFD();
+		// produto dos 2 automatos
+		aux = m.produtoAFD(this, m);
 		
+		ArrayList<Integer> f1 = new ArrayList<>();
+		ArrayList<Integer> f2 = new ArrayList<>();
+		
+		f1 = this.getEstadoFinal();
+		f2 = m.getEstadoFinal();
+		
+		int k = 0;
+		for (Integer e1 = 0; e1 < this.getEstado().size(); e1++) {
+			for (Integer e2 = 0; e2 < this.getEstado().size(); e2++) {
+				// posicoes [e1, e2] pertencem aos estados finais de f1 e f2
+				if((f1.contains(e1)) || (f2.contains(e2))) {
+					// adiciona o estado final ao automato aux na posicao k
+					aux.getEstadoFinal().add((Integer)k);
+				}
+				k++;
+			}
+		}
+		return aux;
+	}
+	
+	// Diferenca de automatos
+	public AFD difference(AFD m) {
+		// intersecao de m1 com o complemento de m2
+		return this.intersection(m.complement());
+	}
+	
+	// Produto de Automatos	---	OK!
+	public AFD produtoAFD(AFD m1, AFD m2) {
 		
 		AFD auxM = new AFD();
 		int tamM1 = m1.getEstado().size();
@@ -304,6 +329,7 @@ public class AFD {
 		int iniM2 = m2.initial();
 		int[][] mapa = new int[tamM1][tamM2];
 		
+		// gera os States do automato
 		int k = 0;
 		for (int i = 0; i < tamM1; i++) {
 			for (int j = 0; j < tamM2; j++) {
@@ -318,15 +344,14 @@ public class AFD {
 			}
 		}		
 		
-		int stateTo;
-		Integer toM2, fromM1, toM1, fromM2;
-		char simM1, simM2;
+		Integer toM2,toM1;
+		char simM1;
 
+		// gera Transicoes do automato
 		ArrayList<Transicao> t1 = new ArrayList<>();
 		for (Integer e1 : m1.getEstado()) {
 			for (Integer e2 : m2.getEstado()) {
 				// Lista de transicao com o FROM igual a state e1
-				
 				t1.clear();
 				t1 = listaFromState(m1, t1, e1);
 				
@@ -345,7 +370,6 @@ public class AFD {
 			}
 		}
 		auxM = RemoveEstadosVazioNulos(auxM);
-		
 		return auxM;
 	}
 	
@@ -413,10 +437,8 @@ public class AFD {
 		Transicao tAux = new Transicao();
 		tAux = (Transicao) t.next();
 		if(tAux.getFrom().equals((Integer)atual)) {
-			System.out.println("Estado To: "+tAux.getTo());
 			return tAux.getTo();
 		}
-		
 		return -1;
 	}
 	
@@ -427,7 +449,6 @@ public class AFD {
 		while(t.hasNext()) {
 			tAux = (Transicao) t.next();
 			if(tAux.getFrom().equals((Integer)from) && tAux.getTo().equals((Integer)to)) {
-				System.out.println("Estado Char: "+tAux.getValue());
 				return tAux.getValue();
 			}
 		}
@@ -449,7 +470,7 @@ public class AFD {
 		return -1;
 	}
 	
-	// Palavra percorre o Automato
+	// Palavra percorre o Automato	---	OK!
 	public boolean accept(String palavra) {
 		
 		char c;
@@ -467,17 +488,17 @@ public class AFD {
 		return false;
 	}
 	
-	// Retorna o Estado Inicial
+	// Retorna o Estado Inicial	---	OK!
 	public int initial() {
 		return getEstadoInicial();
 	}
 	
-	// Retorna os Estados Finais
+	// Retorna os Estados Finais	---	OK!
 	public ArrayList<Integer> finals() {
 		return getEstadoFinal();
 	}
 	
-	// Testa a pertenca de uma palavra na linguagem
+	// Testa a pertenca de uma palavra na linguagem	---	OK!
 	public int move(int estado, String palavra) {
 		
 		char c;

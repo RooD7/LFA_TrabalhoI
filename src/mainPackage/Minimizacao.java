@@ -4,28 +4,32 @@ import java.util.ArrayList;
 
 public class Minimizacao {
 
-	private boolean x;
-	private ArrayList<Integer> pendencia = new ArrayList<>();
+	private boolean boolX;
+	private ArrayList<Transicao> pendencia = new ArrayList<>();
 	
 	
-	public static int valorCorrespondente(int linha, int coluna) {		
-		return (((linha-2) + (linha+1)) / 2) + (coluna-1);
+	public static int valorCorrespondente(int linha, int coluna) {
+		linha -= 2;
+		coluna -= 1;
+		
+		return funcao(linha) + coluna;
+	}	
+	
+	public static int funcao(int n) {
+		return (n*(n+1))/2;
 	}
 	
-	
-	
-	
-	public ArrayList<Integer> getPendencia() {
+	public ArrayList<Transicao> getPendencia() {
 		return this.pendencia;
 	}
-	public void setPendencia(ArrayList<Integer> pendencia) {
+	public void setPendencia(ArrayList<Transicao> pendencia) {
 		this.pendencia = pendencia;
 	}
 	
-	public boolean getX() {
-		return this.x;
+	public boolean getBoolX() {
+		return this.boolX;
 	}
-	public void setX(boolean x) {
-		this.x = x;
+	public void setBoolX(boolean x) {
+		this.boolX = x;
 	}
 }
