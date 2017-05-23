@@ -1,3 +1,10 @@
+/*
+ * 
+ * Trabalho I - LFA		-	23/05/2017
+ * Rafaela Martins 		- 	
+ * Rodrigo Sousa 		-	0011264
+ * 
+ */
 package mainPackage;
 
 public class Transicao {

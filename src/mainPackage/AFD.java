@@ -1,3 +1,10 @@
+/*
+ * 
+ * Trabalho I - LFA		-	23/05/2017
+ * Rafaela Martins 		- 	
+ * Rodrigo Sousa 		-	0011264
+ * 
+ */
 package mainPackage;
 
 import java.io.File;
@@ -50,7 +57,7 @@ public class AFD {
 		
 		//Automato nao eh AFD
 		if(!root.getChildTextNormalize("type").equals("fa")) {
-			System.out.println("Automato não é do tipo FA");
+			System.out.println("Automato nao eh do tipo FA");
 			System.exit(0);
 		}
 		
@@ -66,10 +73,6 @@ public class AFD {
 	        // Adiciona estado na lista de estados
 	        this.getEstado().add(Integer.parseInt(state.getAttributeValue("id")));
 	        
-	        // Adiciona simbolo na lista do alfabeto
-	        if(this.getAlfa().contains(state.getAttributeValue("id")))
-	        	this.getAlfa().add(state.getAttributeValue("id").charAt(0));
-	        
 	        // Adiciona estado como estado inicial
 	        if(state.getChild("initial") != null) {
 	        	this.setEstadoInicial(Integer.parseInt(state.getAttributeValue("id")));
@@ -83,15 +86,22 @@ public class AFD {
 		String s;
 		Iterator<?> j = trst.iterator();
 		while( j.hasNext() ){
-			
+	        
 			Transicao t = new Transicao();
 	        Element trs = (Element) j.next();
+	        // set FROM, TO e VALUE de t
 	        t.setFrom(Integer.parseInt(trs.getChildText("from")));
 	        t.setTo(Integer.parseInt(trs.getChildText("to")));
 	        //String to Char
 	        s = trs.getChildText("read");
 	        t.setValue(s.charAt(0));
 
+	        // Adiciona simbolo na lista do alfabeto
+	        if(!this.getAlfa().contains(Character.valueOf(s.charAt(0)))) {
+	        	this.getAlfa().add(Character.valueOf(s.charAt(0)));
+	        }
+	        
+	        // Adiciona t no array de transicoes
 	        this.getTrans().add(t);
 		}
 	}
@@ -204,7 +214,7 @@ public class AFD {
 			}
 		}
 		else
-			System.out.println("Estado Inválido!");
+			System.out.println("Estado Invalido! Estado "+n);
 	}
 	
 	// Deletar Transicao	---	OK!
@@ -223,67 +233,93 @@ public class AFD {
 	// equivalencia de automatos -- FALTA
 	public static boolean equivalents(AFD m1, AFD m2) {
 		
+		ArrayList<Transicao> t1 = new ArrayList<>();
+		ArrayList<Transicao> t2 = new ArrayList<>();
+		
+		m1 = m1.minimum();
+		m2 = m2.minimum();
+		// Problemas com nomes??
+		
 		return true;
 	}
 	
-	// equivalencia de estados -- FALTA
+	// equivalencia de estados --- OK!
 	public ArrayList<Integer> equivalents() {
 		ArrayList<Integer> eqv = new ArrayList<>();
 		
-		int tamM = this.getEstado().size();
-		/*
-		int[][] mapa = new int[tamM][tamM];
-		
-		// inicializa a matriz
-		int k = 0;
-		for (int i = 0; i < tamM; i++) {
-			for (int j = 0; j < tamM; j++) {
-				mapa[i][j] = -1;
-			}
-		}
-		
-		for (int i = 0; i < tamM; i++) {
-			for (int j = 0; j < tamM; j++) {
-				// Parte inferior da matriz
-				if(i > j) {
-					System.out.println("("+i+","+j+")");
-				}
-			}
-		}
-		*/
-		ArrayList<Minimo> mini = new ArrayList<Minimo>(tamM);
-		Minimo mi = new Minimo();
-		Minimo mi2 = new Minimo();
-		
 		for (Integer e1 : this.getEstado()) {
-			// Cria novo minimo, com a lista de transicoes do estado e1
-			mi = new Minimo(this.listaFromState(this, e1.intValue()));
-			// Adiciona mi ao vetor de minimos
-			mini.add(mi);
-		}
-		
-		mi = null;
-		for (Integer e1 : this.getEstado()) {
-			// Array de transicoes do estado e1
-			mi = mini.get(e1);
 			for (Integer e2 : this.getEstado()) {
-				// Array de transicoes do estado e2
-				mi2 = mini.get(e2);
-				
+				if((e1 != e2) &&  (e1 < e2)){
+					if(((this.getEstadoFinal().equals(e1)) && (this.getEstadoFinal().equals(e1))) || ((!this.getEstadoFinal().equals(e1)) && (!this.getEstadoFinal().equals(e1)))) {
+						if (this.statesEquivalents(this, e1, e2)) {
+							System.out.println("e1: "+e1+", e2: "+e2);
+							eqv.add(e1);
+							eqv.add(e2);
+						}
+					}
+				}
 			}
 		}
 		return eqv;
 	}
 	
-	// Minimizacao -- FALTA
+	// Minimizacao --- OK!
 	public AFD minimum() {
 		AFD mm = new AFD();
+		ArrayList<Integer> eqv = new ArrayList<>();
 		
-		System.out.println("Valor corres: "+ Minimo.valorCorrespondente(1, 1));
-		System.out.println("Valor corres: "+ Minimo.valorCorrespondente(2, 2));
-		System.out.println("Valor corres: "+ Minimo.valorCorrespondente(3, 3));
+		mm = removeEstadosVazioNulos(this);
+		eqv = mm.equivalents();
+
+		if(!eqv.isEmpty()) {			
+			int index = 1;
+			int tam = eqv.size();
+			while(index <= tam ) {
+				mm.setTrans(tranfereTransE2ToE1(mm.getTrans(), eqv.get(index-1), eqv.get(index))); 
+				
+				mm.deleteState(eqv.get(index));
+				index += 2;
+			}
+		}
 		
 		return mm;
+	}
+	
+	public ArrayList<Transicao> tranfereTransE2ToE1(ArrayList<Transicao> t, Integer e1, Integer e2) {
+				
+		for (Transicao tr : t) {
+			if(tr.getFrom().equals(e2)) {
+				tr.setFrom(e1);
+			}
+			
+			if(tr.getTo().equals(e2)) {
+				tr.setTo(e1);
+			}
+		}
+		return t;
+	}
+	
+	public boolean statesEquivalents(AFD m, Integer e1, Integer e2) {
+		
+		Integer to1, to2;
+			
+		// Ou e1 e e2 nao sao iniciais		
+		if((m.getEstadoInicial() != e1.intValue()) && (m.getEstadoInicial() != e2.intValue())) {
+			// percorre todo alfabeto do automato
+			for (Character alfa : m.getAlfa()) {
+				// to1 recebe TO, quando FROM = e1, e VALUE = alfa
+				to1 = getToTrans(m, e1, alfa);
+				to2 = getToTrans(m, e2, alfa);
+				
+				// Se to1 e to2 diferentes, estados nao equivalentes
+				if(!to1.equals(to2)) {
+					return false;
+				}
+			}
+		}
+		else
+			return false;
+		return true;
 	}
 		
 	// Complemento de um automato	---	OK!
@@ -412,10 +448,11 @@ public class AFD {
 				
 			}
 		}
-		auxM = RemoveEstadosVazioNulos(auxM);
+		auxM = removeEstadosVazioNulos(auxM);
 		return auxM;
 	}
 	
+	// Retorna Lista de FROM's = state
 	public ArrayList<Transicao> listaFromState(AFD m, ArrayList<Transicao> t, int state) {
 		
 		Transicao tAux = new Transicao();
@@ -429,6 +466,7 @@ public class AFD {
 		return t;
 	}
 	
+	// Retorna Lista de FROM's = state
 	public ArrayList<Transicao> listaFromState(AFD m, int state) {
 		
 		ArrayList<Transicao> t = new ArrayList<Transicao>();
@@ -443,7 +481,8 @@ public class AFD {
 		return t;
 	}
 	
-	public AFD RemoveEstadosVazioNulos(AFD m) {
+	// Remove estados vazios e/ou inacessiveis 
+	public AFD removeEstadosVazioNulos(AFD m) {
 		
 		boolean flagNulo = true;
 		Transicao tAux = new Transicao();
@@ -475,6 +514,7 @@ public class AFD {
 		return m;
 	}
 	
+	// Retorna TO da transicao que possui FROM = from e VALUE = value
 	public Integer getToTrans(AFD m1, Integer from, char value) {
 		
 		Transicao tAux = new Transicao();
@@ -487,7 +527,8 @@ public class AFD {
 		}
 		return null;
 	}
-	
+
+	// Retorna TO da transicao FROM = atual
 	public int getStateTo( AFD m1, int atual, Iterator<Transicao> t) {
 		
 		Transicao tAux = new Transicao();
@@ -498,6 +539,7 @@ public class AFD {
 		return -1;
 	}
 	
+	// Retorna VALUE que possui FROM = from e TO = to
 	public char getSimbolo( AFD m1, int from, int to) {
 		
 		Transicao tAux = new Transicao();
